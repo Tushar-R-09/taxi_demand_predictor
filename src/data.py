@@ -109,6 +109,7 @@ def transform_raw_data_into_ts_data(
     app_rides = rides.groupby(["pickup_hour", "pickup_location_id"]).size().reset_index()
     app_rides.rename(columns = {0: 'rides'}, inplace = True)
     agg_rides_all_slots = add_missing_slots(app_rides)
+    agg_rides_all_slots['rides'] = agg_rides_all_slots['rides'].fillna(0)
     return agg_rides_all_slots
 
 def get_cutoff_indices(
