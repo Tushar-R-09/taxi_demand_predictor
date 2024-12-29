@@ -25,7 +25,10 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Install hopsworks
-      run: pip install hopsworks
+      run: poetry run pip install hopsworks
+
+    - name: Verify hopsworks installation
+      run: poetry run python -c "import hopsworks"
 
     - name: Execute python workflows from bash script
       env:
