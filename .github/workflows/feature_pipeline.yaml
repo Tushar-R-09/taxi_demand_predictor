@@ -24,6 +24,9 @@ jobs:
       run: poetry install
       if: steps.cache.outputs.cache-hit != 'true'
 
+    - name: Install hopsworks
+      run: pip install hopsworks
+
     - name: Execute python workflows from bash script
       env:
         HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
