@@ -5,7 +5,7 @@ from src.paths import PARENT_DIR
 load_dotenv(PARENT_DIR / ".env")
 
 try:
-    HOPSWORK_API_KEY = os.environ["HOPSWORK_API_KEY"]
+    HOPSWORK_API_KEY = os.environ["HOPSWORKS_API_KEY"]
 
 except:
     raise Exception(
