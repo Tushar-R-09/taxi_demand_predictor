@@ -24,7 +24,7 @@ def get_model_predictions(model, features: pd.DataFrame) -> pd.DataFrame:
     predictions = model.predict(features)
 
     results = pd.DataFrame()
-    results['pichup_location_id'] = features['pickup_location_id'].values
+    results['pickup_location_id'] = features['pickup_location_id'].values
     results['predicted_demand'] = predictions.round(0)
 
     return results

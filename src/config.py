@@ -18,3 +18,5 @@ FEATURE_GROUP_VERSION = 1
 FEATURE_VIEW_NAME = "time_series_hourly_feature_view"
 FEATURE_VIEW_VERSION = 1
 N_FEATURES = 24 * 28
+MODEL_NAME = "taxi_demand_model"
+MODEL_VERSION = 2

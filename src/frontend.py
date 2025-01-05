@@ -26,7 +26,7 @@ st.header(f'{current_date} UTC')
 
 progress_bar = st.sidebar.header('⚙️ Working Progress')
 progress_bar = st.sidebar.progress(0)
-N_STEPS = 6
+N_STEPS = 7
 
 
 def load_shape_data_file() -> gpd.geodataframe.GeoDataFrame:
@@ -139,3 +139,34 @@ with st.spinner(text="Generating NYC Map"):
     st.pydeck_chart(r)
     progress_bar.progress(6/N_STEPS)
 
+with st.spinner(text="Plotting time-series data"):
+   
+    predictions_df = df
+
+    row_indices = np.argsort(predictions_df['predicted_demand'].values)[::-1]
+    n_to_plot = 10
+
+    # plot each time-series with the prediction
+    for row_id in row_indices[:n_to_plot]:
+
+        # title
+        location_id = predictions_df['pickup_location_id'].iloc[row_id]
+        location_name = predictions_df['zone'].iloc[row_id]
+        st.header(f'Location ID: {location_id} - {location_name}')
+
+        # plot predictions
+        prediction = predictions_df['predicted_demand'].iloc[row_id]
+        st.metric(label="Predicted demand", value=int(prediction))
+        
+        # plot figure
+        # generate figure
+        fig = plot_one_sample(
+            example_id=row_id,
+            features=features,
+            targets=predictions_df['predicted_demand'],
+            predictions=pd.Series(predictions_df['predicted_demand']),
+            display_title=False,
+        )
+        st.plotly_chart(fig, theme="streamlit", use_container_width=True, width=1000)
+        
+    progress_bar.progress(7/N_STEPS)
