@@ -81,10 +81,10 @@ def add_missing_slots(agg_rides: pd.DataFrame) -> pd.DataFrame:
 
     location_ids = agg_rides["pickup_location_id"].unique()
     full_range = pd.date_range(
-        agg_rides["pickup_hour"].min(),
-        agg_rides["pickup_hour"].max(),
-        freq="H"
-    )
+    start=agg_rides["pickup_hour"].min().floor("D"),  # 2025-01-01 00:00:00
+    end=agg_rides["pickup_hour"].max().ceil("D") - pd.Timedelta(hours=1),  # 2025-01-02 23:00:00
+    freq="H")
+
     output = pd.DataFrame()
 
     for location_id in tqdm(location_ids):

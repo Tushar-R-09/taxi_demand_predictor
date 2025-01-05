@@ -45,7 +45,7 @@ def load_batch_of_features_from_store(
 
     ts_data = feature_view.get_batch_data(
         start_time=(fetch_data_from - timedelta(days = 1)),
-        end_time = (fetch_data_to - timedelta(days = 1))
+        end_time = (fetch_data_to + timedelta(days = 1))
     )
 
     ts_data = ts_data[ts_data.pickup_hour.between(fetch_data_from
