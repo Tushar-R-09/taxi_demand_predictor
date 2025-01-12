@@ -7,6 +7,9 @@ from src.paths import RAW_DATA_DIR, TRANSFORMED_DATA_DIR
 from typing import Optional, List
 import os
 from tqdm import tqdm
+from src.paths import DATA_DIR
+import geopandas as gpd
+import zipfile 
 
 
 def download_one_file_of_raw_data(year: int, month: int) -> Path:
@@ -31,6 +34,41 @@ def validate_raw_data(rides: pd.DataFrame,
     rides = rides[rides.pickup_datetime < next_month_start]
 
     return rides
+
+def load_shape_data_file() -> gpd.geodataframe.GeoDataFrame:
+    """
+    Fetches remote file with shape data, that we later use to plot the
+    different pickup_location_ids on the map of NYC.
+
+    Raises:
+        Exception: when we cannot connect to the external server where
+        the file is.
+
+    Returns:
+        GeoDataFrame: columns -> (OBJECTID	Shape_Leng	Shape_Area	zone	LocationID	borough	geometry)
+    """
+    # download zip file
+    URL = 'https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip'
+    response = requests.get(URL)
+    path = DATA_DIR / f'taxi_zones.zip'
+    if response.status_code == 200:
+        open(path, "wb").write(response.content)
+    else:
+        raise Exception(f'{URL} is not available')
+
+    # unzip file
+    with zipfile.ZipFile(path, 'r') as zip_ref:
+        zip_ref.extractall(DATA_DIR / 'taxi_zones')
+
+    # load and return shape file
+    return gpd.read_file(DATA_DIR / 'taxi_zones/taxi_zones.shp').to_crs('epsg:4326')
+
+def validate_location_ids(rides: pd.DataFrame) -> pd.DataFrame:
+    geodf = load_shape_data_file()
+    valid_location_ids = set(list(geodf['LocationID']))
+    rides = rides[rides.pickup_location_id.isin(valid_location_ids)]
+    return rides
+
 
 
 def load_raw_data(
@@ -71,11 +109,36 @@ def load_raw_data(
         
         rides_one_month = validate_raw_data(rides_one_month, year, month)
 
+        rides_one_month = validate_location_ids(rides_one_month)
+
         rides = pd.concat([rides, rides_one_month])
 
     rides = rides[['pickup_datetime', 'pickup_location_id']]
 
     return rides
+
+def ensure_all_locations_per_hour(agg_rides: pd.DataFrame, location_ids: set) -> pd.DataFrame:
+    # Get the full range of hours
+    full_range = pd.date_range(
+        start=agg_rides["pickup_hour"].min().floor("H"),
+        end=agg_rides["pickup_hour"].max().ceil("H") - pd.Timedelta(hours=1),
+        freq="H"
+    )
+
+    # Create a cartesian product of all hours and all location IDs
+    all_combinations = pd.MultiIndex.from_product(
+        [full_range, sorted(location_ids)],
+        names=["pickup_hour", "pickup_location_id"]
+    )
+
+    # Reindex the DataFrame to ensure all combinations are present
+    agg_rides_complete = (
+        agg_rides.set_index(["pickup_hour", "pickup_location_id"])
+        .reindex(all_combinations, fill_value=0)  # Fill missing rides with 0
+        .reset_index()
+    )
+
+    return agg_rides_complete
 
 def add_missing_slots(agg_rides: pd.DataFrame) -> pd.DataFrame:
 
@@ -109,7 +172,11 @@ def transform_raw_data_into_ts_data(
     app_rides = rides.groupby(["pickup_hour", "pickup_location_id"]).size().reset_index()
     app_rides.rename(columns = {0: 'rides'}, inplace = True)
     agg_rides_all_slots = add_missing_slots(app_rides)
-    agg_rides_all_slots['rides'] = agg_rides_all_slots['rides'].fillna(0)
+    agg_rides_all_slots['rides'] = agg_rides_all_slots['rides'].fillna(agg_rides_all_slots['rides'].mean())
+    geodf = load_shape_data_file()
+    valid_location_ids = set(list(geodf['LocationID']))
+    agg_rides_all_slots = ensure_all_locations_per_hour(agg_rides_all_slots, valid_location_ids)
+
     return agg_rides_all_slots
 
 def get_cutoff_indices(
