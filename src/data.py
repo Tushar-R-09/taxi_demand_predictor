@@ -28,10 +28,15 @@ def validate_raw_data(rides: pd.DataFrame,
                     year: int,
                     month: int) -> pd.DataFrame:
     
-    this_month_start = f'{year}-{month:02d}-01'
-    next_month_start = f'{year}-{month+1:02d}-01' if month < 12 else f'{year+1}-01-01'
-    rides = rides[rides.pickup_datetime >= this_month_start]
-    rides = rides[rides.pickup_datetime < next_month_start]
+    # Convert pickup_datetime to timezone-aware (UTC)
+    rides['pickup_datetime'] = rides['pickup_datetime'].dt.tz_localize("UTC")
+
+    # Ensure this_month_start and next_month_start are also timezone-aware
+    this_month_start = pd.Timestamp(f"{year}-{month:02d}-01", tz="UTC")
+    next_month_start = pd.Timestamp(f"{year}-{month + 1:02d}-01", tz="UTC") if month < 12 else pd.Timestamp(f"{year + 1}-01-01", tz="UTC")
+
+    # Perform the filtering
+    rides = rides[(rides.pickup_datetime >= this_month_start) & (rides.pickup_datetime < next_month_start)]
 
     return rides
 
@@ -113,9 +118,12 @@ def load_raw_data(
 
         rides = pd.concat([rides, rides_one_month])
 
-    rides = rides[['pickup_datetime', 'pickup_location_id']]
+    if len(rides) != 0:
+        rides = rides[['pickup_datetime', 'pickup_location_id']]
 
-    return rides
+        return rides
+    else:
+        raise Exception (f"No data for the year {year}")
 
 def ensure_all_locations_per_hour(agg_rides: pd.DataFrame, location_ids: set) -> pd.DataFrame:
     # Get the full range of hours

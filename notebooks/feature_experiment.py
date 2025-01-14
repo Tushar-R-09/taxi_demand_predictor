@@ -1,9 +1,9 @@
 import src.config as config
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 
-current_date = pd.to_datetime(datetime.utcnow()).floor('H')
+current_date = pd.to_datetime(datetime.now(timezone.utc)).floor('H')
 print(f'{current_date = }')
 
 fetch_date_to = current_date
