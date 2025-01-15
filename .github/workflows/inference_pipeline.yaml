@@ -8,7 +8,7 @@ on:
   workflow_dispatch:  # Add this for manual triggering
 
 jobs:
-  feature-pipeline:
+  inference-pipeline:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,4 +29,4 @@ jobs:
     - name: Execute python workflows from bash script
       env:
         HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
-      run: poetry run jupyter nbconvert --to notebook --execute notebooks/12_feature_pipeline.ipynb
+      run: poetry run jupyter nbconvert --to notebook --execute notebooks/14_inference_pipeline.ipynb
