@@ -10,8 +10,8 @@ import src.config as config
 def get_hopsworks_project() -> hopsworks.project.Project:
 
     return hopsworks.login(
-    project = config.HOPSWORK_PROJECT_NAME,
-    api_key_value = config.HOPSWORK_API_KEY
+    project = config.HOPSWORKS_PROJECT_NAME,
+    api_key_value = config.HOPSWORKS_API_KEY
 )
 
 def get_feature_store() -> FeatureStore:
