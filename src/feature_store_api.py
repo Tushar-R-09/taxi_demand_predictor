@@ -78,33 +78,45 @@ def get_or_create_feature_group(
 def get_or_create_feature_view(
     feature_view_metadata: FeatureViewConfig
 ) -> hsfs.feature_view.FeatureView:
-    """"""
-
-    # get pointer to the feature store
+    """
+    Ensures a feature view is created or updated to reflect the latest data from the feature group.
+    """
+    # Get pointer to the feature store
     feature_store = get_feature_store()
 
-    # get pointer to the feature group
-    # from src.config import FEATURE_GROUP_METADATA
+    # Get pointer to the feature group
     feature_group = feature_store.get_feature_group(
         name=feature_view_metadata.feature_group.name,
         version=feature_view_metadata.feature_group.version
     )
 
-    # create feature view if it doesn't exist
     try:
-        feature_store.create_feature_view(
+        # Try to retrieve the feature view
+        feature_view = feature_store.get_feature_view(
             name=feature_view_metadata.name,
             version=feature_view_metadata.version,
-            query=feature_group.select_all()
         )
-    except:
-        pass
-    
-    # get feature view
-    feature_store = get_feature_store()
-    feature_view = feature_store.get_feature_view(
-        name=feature_view_metadata.name,
-        version=feature_view_metadata.version,
-    )
+
+        # If feature view exists, delete and recreate it to reflect the latest data
+        feature_view.delete()
+        feature_view = feature_store.create_feature_view(
+            name=feature_view_metadata.name,
+            version=feature_view_metadata.version,
+            query=feature_group.select_all(),
+        )
+        
+    except hsfs.client.exceptions.RestAPIError as e:
+        # Handle the case where the feature view does not exist
+        if "not found" in str(e).lower() or "does not exist" in str(e).lower():
+            # Create the feature view if it doesn't exist
+            feature_view = feature_store.create_feature_view(
+                name=feature_view_metadata.name,
+                version=feature_view_metadata.version,
+                query=feature_group.select_all(),
+            )
+        else:
+            # Log and raise other exceptions
+            raise e
 
     return feature_view
+
