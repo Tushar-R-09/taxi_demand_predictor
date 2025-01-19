@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from argparse import ArgumentParser
 
 import pandas as pd
+import hsfs
 
 import src.config as config
 from src.logger import get_logger
@@ -40,10 +41,11 @@ def load_predictions_and_actual_values_from_store(
     from_ts = int(from_date.timestamp() * 1000)
     to_ts = int(to_date.timestamp() * 1000)
     query = predictions_fg.select_all() \
-        .join(actuals_fg.select(['pickup_location_id', 'pickup_hour', 'rides']),
+        .join(actuals_fg.select(['rides']),
               on=['pickup_hour', 'pickup_location_id'], prefix=None) \
         .filter(predictions_fg.pickup_hour >= from_ts) \
         .filter(predictions_fg.pickup_hour <= to_ts)
+
     
     # breakpoint()
 
@@ -51,14 +53,30 @@ def load_predictions_and_actual_values_from_store(
     # exist yet
     feature_store = get_feature_store()
     try:
+
+        feature_view = feature_store.get_feature_view(
+             name=config.MONITORING_FV_NAME,
+            version=config.MONITORING_FV_VERSION,
+        )
+
+        feature_view.delete()
         # create feature view as it does not exist yet
-        feature_store.create_feature_view(
+        feature_view = feature_store.create_feature_view(
             name=config.MONITORING_FV_NAME,
             version=config.MONITORING_FV_VERSION,
             query=query
         )
-    except:
-        logger.info('Feature view already existed. Skip creation.')
+    except hsfs.client.exceptions.RestAPIError as e:
+
+        if "not found" in str(e).lower() or "does not exist" in str(e).lower():
+            feature_view = feature_store.create_feature_view(
+                name=config.MONITORING_FV_NAME,
+                version=config.MONITORING_FV_VERSION,
+                query=query
+            )
+        else:
+            # Log and raise other exceptions
+            raise e
 
     # feature view
     monitoring_fv = feature_store.get_feature_view(

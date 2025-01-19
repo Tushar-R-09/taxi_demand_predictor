@@ -156,6 +156,7 @@ with st.spinner(text="Preparing data to plot"):
     df['color_scaling'] = df['predicted_demand']
     max_pred, min_pred = df['color_scaling'].max(), df['color_scaling'].min()
     df['fill_color'] = df['color_scaling'].apply(lambda x: pseudocolor(x, min_pred, max_pred, BLACK, GREEN))
+    st.sidebar.write('✅ Data is prepared for plotting')
     progress_bar.progress(3/N_STEPS)
 
 with st.spinner(text="Generating NYC Map"):
@@ -193,6 +194,7 @@ with st.spinner(text="Generating NYC Map"):
     )
 
     st.pydeck_chart(r)
+    st.sidebar.write('✅ NYC city map is generated')
     progress_bar.progress(4/N_STEPS)
 
 
@@ -231,5 +233,7 @@ with st.spinner(text="Plotting time-series data"):
             display_title=False,
         )
         st.plotly_chart(fig, theme="streamlit", use_container_width=True, width=1000)
+
+    st.sidebar.write('✅ Time series data is plotted')
         
     progress_bar.progress(6/N_STEPS)
