@@ -94,7 +94,7 @@ def load_predictions_and_actual_values_from_store(
     # filter data to the time period we are interested in
     pickup_ts_from = int(from_date.timestamp() * 1000)
     pickup_ts_to = int(to_date.timestamp() * 1000)
-    monitoring_df = monitoring_df[monitoring_df.pickup_ts.between(pickup_ts_from, pickup_ts_to)]
+    monitoring_df = monitoring_df[monitoring_df.pickup_hour.between(from_date, to_date)]
 
     return monitoring_df
 
