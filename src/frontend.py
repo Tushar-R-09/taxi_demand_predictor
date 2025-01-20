@@ -99,6 +99,7 @@ def _load_predictions_from_store(
 
 with st.spinner(text="Downloading shape file to plot taxi zones"):
     geo_df = load_shape_data_file()
+    geo_df = geo_df.drop_duplicates(subset='LocationID', keep='first')
     st.sidebar.write('✅ Shape file was downloaded ')
     progress_bar.progress(1/N_STEPS)
 
@@ -207,6 +208,7 @@ with st.spinner(text="Fetching batch of features used in the last run"):
 with st.spinner(text="Plotting time-series data"):
    
     predictions_df = df
+
 
     row_indices = np.argsort(predictions_df['predicted_demand'].values)[::-1]
     n_to_plot = 10
