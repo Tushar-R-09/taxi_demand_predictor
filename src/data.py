@@ -120,10 +120,11 @@ def load_raw_data(
 
     if len(rides) != 0:
         rides = rides[['pickup_datetime', 'pickup_location_id']]
-
         return rides
     else:
-        raise Exception (f"No data for the year {year}")
+        # Return an empty DataFrame with the desired columns
+        return pd.DataFrame(columns=['pickup_datetime', 'pickup_location_id'])
+
 
 def ensure_all_locations_per_hour(agg_rides: pd.DataFrame, location_ids: set) -> pd.DataFrame:
     # Get the full range of hours
