@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 import hsfs
 import hopsworks
-
+from src.logger import get_logger
 import src.config as config
-
+logger = get_logger()
 @dataclass
 class FeatureGroupConfig:
     name: str
@@ -27,7 +27,7 @@ def get_feature_store() -> hsfs.feature_store.FeatureStore:
     Returns:
         hsfs.feature_store.FeatureStore: pointer to the feature store
     """
-    print(config.HOPSWORKS_PROJECT_NAME, config.HOPSWORKS_API_KEY)
+    logger.info(f"project name and api key is {config.HOPSWORKS_PROJECT_NAME, config.HOPSWORKS_API_KEY}")
     project = hopsworks.login(
         project=config.HOPSWORKS_PROJECT_NAME,
         api_key_value=config.HOPSWORKS_API_KEY
