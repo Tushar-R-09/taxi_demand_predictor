@@ -10,6 +10,7 @@ from tqdm import tqdm
 from src.paths import DATA_DIR
 import geopandas as gpd
 import zipfile 
+from datetime import datetime, timedelta
 
 
 def download_one_file_of_raw_data(year: int, month: int) -> Path:
@@ -173,6 +174,40 @@ def add_missing_slots(agg_rides: pd.DataFrame) -> pd.DataFrame:
     output = output.reset_index().rename(columns={"index": "pickup_hour"})
 
     return output
+
+def fetch_ride_events_from_data_warehouse(
+    from_date: datetime,
+    to_date: datetime
+) -> pd.DataFrame:
+    """
+    This function is used to simulate production data by sampling historical data
+    from 52 weeks ago (i.e. 1 year)
+    """
+    from_date_ = from_date - timedelta(days=7*52)
+    to_date_ = to_date - timedelta(days=7*52)
+    print(f'Fetching ride events from {from_date} to {to_date}')
+
+    if (from_date_.year == to_date_.year) and (from_date_.month == to_date_.month):
+        # download 1 file of data only
+        rides = load_raw_data(year=from_date_.year, months=from_date_.month)
+        rides = rides[rides.pickup_datetime >= from_date_]
+        rides = rides[rides.pickup_datetime < to_date_]
+
+    else:
+        # download 2 files from website
+        rides = load_raw_data(year=from_date_.year, months=from_date_.month)
+        rides = rides[rides.pickup_datetime >= from_date_]
+        rides_2 = load_raw_data(year=to_date_.year, months=to_date_.month)
+        rides_2 = rides_2[rides_2.pickup_datetime < to_date_]
+        rides = pd.concat([rides, rides_2])
+
+    # shift the pickup_datetime back 1 year ahead, to simulate production data
+    # using its 7*52-days-ago value
+    rides['pickup_datetime'] += timedelta(days=7*52)
+
+    rides.sort_values(by=['pickup_location_id', 'pickup_datetime'], inplace=True)
+
+    return rides
 
 def transform_raw_data_into_ts_data(
         rides: pd.DataFrame

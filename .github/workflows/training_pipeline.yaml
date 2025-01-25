@@ -1,17 +1,13 @@
-name: inference-pipeline
+name: training_pipeline
 
 on:
-  # workflow_run:
-  #   workflows: ["feature-pipeline"]
-  #   types:
-  #     - completed
-  schedule:
-    - cron: '30 * * * *'
+ schedule:
+  - cron: '0 0 * * 0'
 
   workflow_dispatch:  # Add this for manual triggering
 
 jobs:
-  inference-pipeline:
+  feature-pipeline:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,12 +24,13 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cache.outputs.cache-hit != 'true'
-      
-    - name: Generating new batch of predictions
-      env: 
-        HOPSWORKS_PROJECT_NAME: ${{ secrets.HOPSWORKS_PROJECT_NAME }}
+
+    - name: Run training script
+      env:
+        HOPSWORKS_PROJECT_NAME: ${{ secrets.HOPSWORKS_PROJECT_NAME }} 
         HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         COMET_ML_API_KEY: ${{ secrets.COMET_ML_API_KEY }}
         COMET_ML_WORKSPACE: ${{ secrets.COMET_ML_WORKSPACE }}
         COMET_ML_PROJECT_NAME: ${{ secrets.COMET_ML_PROJECT_NAME }}
-      run: make inference
+      run: make training

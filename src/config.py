@@ -44,7 +44,7 @@ MODEL_NAME = 'taxi_demand_predictor'
 # TODO remove FEATURE_GROUP_MODEL_PREDICTIONS and use FEATURE_GROUP_PREDICTIONS_METADATA instead
 FEATURE_GROUP_MODEL_PREDICTIONS = 'model_predictions_feature_group'
 FEATURE_GROUP_PREDICTIONS_METADATA = FeatureGroupConfig(
-    name='model_predictions_feature_group',
+    name=FEATURE_GROUP_MODEL_PREDICTIONS,
     version=1,
     description='Predictions generate by our production model',
     primary_key=['pickup_location_id', 'pickup_ts'],
@@ -54,7 +54,7 @@ FEATURE_GROUP_PREDICTIONS_METADATA = FeatureGroupConfig(
 # TODO remove FEATURE_VIEW_MODEL_PREDICTIONS and use FEATURE_VIEW_PREDICTIONS_METADATA instead
 FEATURE_VIEW_MODEL_PREDICTIONS = 'model_predictions_feature_view'
 FEATURE_VIEW_PREDICTIONS_METADATA = FeatureViewConfig(
-    name='model_predictions_feature_view',
+    name=FEATURE_VIEW_MODEL_PREDICTIONS,
     version=1,
     feature_group=FEATURE_GROUP_PREDICTIONS_METADATA,
 )

@@ -1,13 +1,25 @@
 from pathlib import Path
+import os
 
 PARENT_DIR = Path(__file__).parent.resolve().parent
-DATA_DIR = PARENT_DIR / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-TRANSFORMED_DATA_DIR = DATA_DIR / "transformed"
-MODEL_DIR = PARENT_DIR / "models"
+DATA_DIR = PARENT_DIR / 'data'
+RAW_DATA_DIR = PARENT_DIR / 'data' / 'raw'
+TRANSFORMED_DATA_DIR = PARENT_DIR / 'data' / 'transformed'
+DATA_CACHE_DIR = PARENT_DIR / 'data' / 'cache'
 
-# Create the directories if they don't already exist
-DATA_DIR.mkdir(exist_ok=True)  # Ensure the base 'data' directory exists
-RAW_DATA_DIR.mkdir(exist_ok=True)  # Create 'raw' under 'data'
-TRANSFORMED_DATA_DIR.mkdir(exist_ok=True)  # Create 'transformed' under 'data'
-MODEL_DIR.mkdir(exist_ok=True)  # Create 'models' under the parent directory
+MODELS_DIR = PARENT_DIR / 'models'
+
+if not Path(DATA_DIR).exists():
+    os.mkdir(DATA_DIR)
+
+if not Path(RAW_DATA_DIR).exists():
+    os.mkdir(RAW_DATA_DIR)
+
+if not Path(TRANSFORMED_DATA_DIR).exists():
+    os.mkdir(TRANSFORMED_DATA_DIR)
+
+if not Path(MODELS_DIR).exists():
+    os.mkdir(MODELS_DIR)
+
+if not Path(DATA_CACHE_DIR).exists():
+    os.mkdir(DATA_CACHE_DIR)

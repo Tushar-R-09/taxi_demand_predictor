@@ -21,6 +21,10 @@ optuna = "^4.1.0"
 python-dotenv = "^1.0.1"
 confluent-kafka = "^2.7.0"
 geopandas = "^1.0.1"
+comet-ml = "^3.35.3"
+fire = "^0.5.0"
+discordwebhook = "^1.0.3"
+retry = "^0.9.2"
 numpy = "^1.23.5"  # Specified version to avoid incompatibility with pandas
 
 
