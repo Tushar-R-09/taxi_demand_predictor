@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # Add this for manual triggering
 
 jobs:
-  feature-pipeline:
+  training-pipeline:
     runs-on: ubuntu-latest
 
     steps:
