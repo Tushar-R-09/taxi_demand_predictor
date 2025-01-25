@@ -31,3 +31,8 @@ jobs:
         HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
       run: make features
 
+    - name: Debug secret access
+      run: echo "Project Name: ${PROJECT_NAME::3}******"
+      env:
+        PROJECT_NAME: ${{ secrets.HOPSWORKS_PROJECT_NAME }}
+
