@@ -1,10 +1,6 @@
 name: inference-pipeline
 
 on:
-  # workflow_run:
-  #   workflows: ["feature-pipeline"]
-  #   types:
-  #     - completed
   schedule:
     - cron: '30 * * * *'
 
