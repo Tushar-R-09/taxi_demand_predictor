@@ -34,6 +34,7 @@ jobs:
     - name: Debug secret access
       env:
         PROJECT_NAME: ${{ secrets.HOPSWORKS_PROJECT_NAME }}
-      run: echo "Project Name: ${PROJECT_NAME::3}******"
+      run: |
+        echo "Project Name: ${PROJECT_NAME:0:3}******"
      
 
