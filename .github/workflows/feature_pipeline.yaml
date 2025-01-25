@@ -32,7 +32,8 @@ jobs:
       run: make features
 
     - name: Debug secret access
-      run: echo "Project Name: ${PROJECT_NAME::3}******"
       env:
         PROJECT_NAME: ${{ secrets.HOPSWORKS_PROJECT_NAME }}
+      run: echo "Project Name: ${PROJECT_NAME::3}******"
+     
 
