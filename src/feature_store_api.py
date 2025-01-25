@@ -27,6 +27,7 @@ def get_feature_store() -> hsfs.feature_store.FeatureStore:
     Returns:
         hsfs.feature_store.FeatureStore: pointer to the feature store
     """
+    print(config.HOPSWORKS_PROJECT_NAME, config.HOPSWORKS_API_KEY)
     project = hopsworks.login(
         project=config.HOPSWORKS_PROJECT_NAME,
         api_key_value=config.HOPSWORKS_API_KEY
