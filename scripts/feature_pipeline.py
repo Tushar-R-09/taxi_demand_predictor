@@ -33,6 +33,7 @@ def run(date: datetime):
     ts_data['pickup_ts'] = ts_data['pickup_hour'].view('int64') // 10**6
 
     logger.info('Getting pointer to the feature group we wanna save data to')
+    logger.info(f"project name and api key is {config.HOPSWORKS_PROJECT_NAME, config.HOPSWORKS_API_KEY}")
     feature_group = get_or_create_feature_group(config.FEATURE_GROUP_METADATA)
 
 
